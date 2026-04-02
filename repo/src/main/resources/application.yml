@@ -1,0 +1,58 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:heritage_marketplace}
+    username: ${DB_USERNAME:heritage_app}
+    password: ${DB_PASSWORD:heritage_password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    baseline-on-migrate: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+server:
+  ssl:
+    enabled: ${TLS_ENABLED:false}
+    key-store: ${TLS_KEY_STORE:}
+    key-store-password: ${TLS_KEY_STORE_PASSWORD:}
+    key-store-type: ${TLS_KEY_STORE_TYPE:PKCS12}
+    enabled-protocols: TLSv1.2,TLSv1.3
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-this-jwt-secret}
+    ttl-seconds: ${JWT_TTL_SECONDS:3600}
+  encryption:
+    secret: ${APP_ENCRYPTION_SECRET:change-this-encryption-secret}
+  appeal:
+    upload-dir: ${APPEAL_UPLOAD_DIR:uploads/appeals}
+  security:
+    cors:
+      allowed-origin: ${FRONTEND_ALLOWED_ORIGIN:http://localhost:3000}
+  scheduler:
+    reservation-expiry:
+      fixed-delay-ms: ${SCHEDULER_RESERVATION_EXPIRY_MS:60000}
+    sla-escalation:
+      fixed-delay-ms: ${SCHEDULER_SLA_ESCALATION_MS:60000}
+    trending-score:
+      cron: ${SCHEDULER_TRENDING_SCORE_CRON:0 0 * * * *}
+    tier-recalculation:
+      cron: ${SCHEDULER_TIER_RECALC_CRON:0 0 2 * * *}
+    risk-aggregation:
+      cron: ${SCHEDULER_RISK_AGGREGATION_CRON:0 0 3 * * *}
+    audit-pruner:
+      cron: ${SCHEDULER_AUDIT_PRUNER_CRON:0 0 1 1 * *}
+      retention-years: ${SCHEDULER_AUDIT_RETENTION_YEARS:2}
+    deletion-finalizer:
+      cron: ${SCHEDULER_DELETION_FINALIZER_CRON:0 0 4 * * *}
+      grace-days: ${SCHEDULER_DELETION_GRACE_DAYS:30}

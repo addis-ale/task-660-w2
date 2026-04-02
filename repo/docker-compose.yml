@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_DB: heritage_marketplace
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password # Ideally this would be in a separate secret file
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d heritage_marketplace"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: heritage_marketplace
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      JWT_SECRET: "your_very_long_secret_key_at_least_64_characters_long_for_development"
+      APP_ENCRYPTION_SECRET: "1234567890123456" # 16 byte key for AES
+      TLS_ENABLED: "false"
+      FRONTEND_ALLOWED_ORIGIN: "http://localhost"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: 
+      context: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
